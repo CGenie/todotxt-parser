@@ -34,6 +34,10 @@
     test.ok(item.validate(), "simple item is ok");
     test.equal(item.description, "a", "item description parsed correctly");
     test.equal(item.priority, "A");
+    item = todo.TodoItem.parse("(a) invalid priority");
+    test.ok(item.validate(), "invalid priority item is ok");
+    test.equal(item.description, "(a) invalid priority", "item description parsed correctly");
+    test.equal(item.priority, null);
     return test.done();
   };
 
