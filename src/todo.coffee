@@ -6,6 +6,7 @@ class TodoItem
         @dueDate = params?.dueDate
         @project = params?.project
         @contexts = params?.contexts || []
+        @complete = params?.complete || false
 
     render: () ->
         ret = ""
@@ -38,11 +39,15 @@ class TodoItem
         if '\n' in text
             return null
 
-        priorityRe = /\([ABC]\)/
+        completeRe = /^x /
+        complete = text.match(completeRe)?[0] || false
+        description = text.replace(completeRe, '').trim()
+
+        priorityRe = /\([ABC]\) /
         priority = text.match(priorityRe)?[0]
         if priority
             priority = priority[1]
-        description = text.replace(priorityRe, '').trim()
+        description = description.replace(priorityRe, '').trim()
 
         contextRe = /\@\w+/g
         contexts = (c[1..] for c in (text.match(contextRe) || []))
@@ -59,14 +64,22 @@ class TodoItem
             description: description
             project: project
             contexts: contexts
+            complete: complete
 
 
 class Todo
     constructor: (params) ->
-        @items = (TodoItem.parse text for text in (params?.items || []))
+        items_ = (TodoItem.parse text for text in (params?.items || []))
+        @items = (item for item in items_ when item.validate())
 
     render: () ->
         (item.render() for item in this.items).join "\n"
+
+    this.parse = (text) ->
+        text ?= ''
+
+        new Todo
+            items: text.split('\n')
 
 
 exports.TodoItem = TodoItem

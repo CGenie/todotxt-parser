@@ -38,6 +38,7 @@
         @dueDate = params?.dueDate
         @project = params?.project
         @contexts = params?.contexts || []
+        @complete = params?.complete || <span class="hljs-literal">false</span>
 
     render: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
         ret = <span class="hljs-string">""</span>
@@ -109,11 +110,15 @@
         <span class="hljs-keyword">if</span> <span class="hljs-string">'\n'</span> <span class="hljs-keyword">in</span> text
             <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>
 
-        priorityRe = <span class="hljs-regexp">/\([ABC]\)/</span>
+        completeRe = <span class="hljs-regexp">/^x /</span>
+        complete = text.match(completeRe)?[<span class="hljs-number">0</span>] || <span class="hljs-literal">false</span>
+        description = text.replace(completeRe, <span class="hljs-string">''</span>).trim()
+
+        priorityRe = <span class="hljs-regexp">/\([ABC]\) /</span>
         priority = text.match(priorityRe)?[<span class="hljs-number">0</span>]
         <span class="hljs-keyword">if</span> priority
             priority = priority[<span class="hljs-number">1</span>]
-        description = text.replace(priorityRe, <span class="hljs-string">''</span>).trim()
+        description = description.replace(priorityRe, <span class="hljs-string">''</span>).trim()
 
         contextRe = <span class="hljs-regexp">/\@\w+/g</span>
         contexts = (c[<span class="hljs-number">1.</span>.] <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> (text.match(contextRe) || []))
@@ -130,14 +135,22 @@
             description: description
             project: project
             contexts: contexts
+            complete: complete
 
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Todo</span></span>
     constructor: <span class="hljs-function"><span class="hljs-params">(params)</span> -&gt;</span>
-        @items = (TodoItem.parse text <span class="hljs-keyword">for</span> text <span class="hljs-keyword">in</span> (params?.items || []))
+        items_ = (TodoItem.parse text <span class="hljs-keyword">for</span> text <span class="hljs-keyword">in</span> (params?.items || []))
+        @items = (item <span class="hljs-keyword">for</span> item <span class="hljs-keyword">in</span> items_ <span class="hljs-keyword">when</span> item.validate())
 
     render: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
         (item.render() <span class="hljs-keyword">for</span> item <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.items).join <span class="hljs-string">"\n"</span>
+
+    <span class="hljs-keyword">this</span>.parse = <span class="hljs-function"><span class="hljs-params">(text)</span> -&gt;</span>
+        text ?= <span class="hljs-string">''</span>
+
+        <span class="hljs-keyword">new</span> Todo
+            items: text.split(<span class="hljs-string">'\n'</span>)
 
 
 exports.TodoItem = TodoItem

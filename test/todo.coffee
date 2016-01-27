@@ -5,6 +5,8 @@ exports.testTodoItemValidation = (test) ->
     item = new todo.TodoItem {description: 'item'}
 
     test.ok item.validate(), "item is valid"
+    test.ok !item.complete, "item is not complete"
+    test.equal item.priority, null, "item priority not set"
 
     item = new todo.TodoItem
 
@@ -43,6 +45,11 @@ exports.testTodoItemParseWithPriority = (test) ->
     test.equal item.description, "(a) invalid priority", "item description parsed correctly"
     test.equal item.priority, null
 
+    item = todo.TodoItem.parse "(A)->invalid priority"
+    test.ok item.validate(), "invalid priority item is ok"
+    test.equal item.description, "(A)->invalid priority", "item description parsed correctly"
+    test.equal item.priority, null
+
     test.done()
 
 
@@ -64,6 +71,18 @@ exports.testTodoItemParseWithContexts = (test) ->
     test.equal item.description, "a", "item description parsed correctly"
     test.equal item.priority, "A"
     test.deepEqual item.contexts, ["context1", "context2"]
+
+    test.done()
+
+
+exports.testTodoItemParseWithComplete = (test) ->
+    item = todo.TodoItem.parse "x (A) a @context1 @context2"
+
+    test.ok item.validate(), "simple item is ok"
+    test.equal item.description, "a", "item description parsed correctly"
+    test.equal item.priority, "A"
+    test.deepEqual item.contexts, ["context1", "context2"]
+    test.ok item.complete, "item is complete"
 
     test.done()
 
@@ -94,6 +113,18 @@ exports.testTodoRender = (test) ->
     ]
     text = texts.join('\n')
 
-    test.equals (new todo.Todo {items: texts}).render(), text
+    test.equals (todo.Todo.parse text).render(), text
+
+    # filter out invalid items
+    texts = [
+        "(A) abc",
+        "",
+        "(B) def"
+    ]
+
+    test.equals (todo.Todo.parse(texts.join('\n'))).render(), [
+        "(A) abc",
+        "(B) def"
+    ].join('\n')
 
     test.done()

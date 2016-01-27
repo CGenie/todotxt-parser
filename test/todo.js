@@ -10,6 +10,8 @@
       description: 'item'
     });
     test.ok(item.validate(), "item is valid");
+    test.ok(!item.complete, "item is not complete");
+    test.equal(item.priority, null, "item priority not set");
     item = new todo.TodoItem;
     test.ok(!item.validate(), "empty item is not valid");
     return test.done();
@@ -38,6 +40,10 @@
     test.ok(item.validate(), "invalid priority item is ok");
     test.equal(item.description, "(a) invalid priority", "item description parsed correctly");
     test.equal(item.priority, null);
+    item = todo.TodoItem.parse("(A)->invalid priority");
+    test.ok(item.validate(), "invalid priority item is ok");
+    test.equal(item.description, "(A)->invalid priority", "item description parsed correctly");
+    test.equal(item.priority, null);
     return test.done();
   };
 
@@ -61,6 +67,17 @@
     return test.done();
   };
 
+  exports.testTodoItemParseWithComplete = function(test) {
+    var item;
+    item = todo.TodoItem.parse("x (A) a @context1 @context2");
+    test.ok(item.validate(), "simple item is ok");
+    test.equal(item.description, "a", "item description parsed correctly");
+    test.equal(item.priority, "A");
+    test.deepEqual(item.contexts, ["context1", "context2"]);
+    test.ok(item.complete, "item is complete");
+    return test.done();
+  };
+
   exports.testTodoItemRender = function(test) {
     var i, item, len, text, texts;
     texts = ["(A) abc @context1 @context2", "abc @context", "(A) abc", "(A) abc +project @context1 @context2", "(A) abc +project"];
@@ -76,9 +93,9 @@
     var text, texts;
     texts = ["(A) abc @context1 @context2", "abc @context", "(A) abc", "(A) abc +project @context1 @context2", "(A) abc +project"];
     text = texts.join('\n');
-    test.equals((new todo.Todo({
-      items: texts
-    })).render(), text);
+    test.equals((todo.Todo.parse(text)).render(), text);
+    texts = ["(A) abc", "", "(B) def"];
+    test.equals((todo.Todo.parse(texts.join('\n'))).render(), ["(A) abc", "(B) def"].join('\n'));
     return test.done();
   };
 
