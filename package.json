@@ -1,6 +1,6 @@
 {
-  "name": "coffeetodo",
-  "version": "1.0.0",
+  "name": "todotxt-parser",
+  "version": "0.1.0",
   "description": "CoffeeScript TODO.txt parser",
   "main": "lib/index.js",
   "scripts": {
