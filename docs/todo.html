@@ -114,7 +114,7 @@
         complete = text.match(completeRe)?[<span class="hljs-number">0</span>] || <span class="hljs-literal">false</span>
         description = text.replace(completeRe, <span class="hljs-string">''</span>).trim()
 
-        priorityRe = <span class="hljs-regexp">/\([ABC]\) /</span>
+        priorityRe = <span class="hljs-regexp">/\([A-Z]\) /</span>
         priority = text.match(priorityRe)?[<span class="hljs-number">0</span>]
         <span class="hljs-keyword">if</span> priority
             priority = priority[<span class="hljs-number">1</span>]

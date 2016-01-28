@@ -35,10 +35,14 @@ exports.testTodoItemParseSimpleText = (test) ->
 
 exports.testTodoItemParseWithPriority = (test) ->
     item = todo.TodoItem.parse "(A) a"
-
     test.ok item.validate(), "simple item is ok"
     test.equal item.description, "a", "item description parsed correctly"
     test.equal item.priority, "A"
+
+    item = todo.TodoItem.parse "(Z) z"
+    test.ok item.validate(), "simple item is ok"
+    test.equal item.description, "z", "item description parsed correctly"
+    test.equal item.priority, "Z"
 
     item = todo.TodoItem.parse "(a) invalid priority"
     test.ok item.validate(), "invalid priority item is ok"

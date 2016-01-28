@@ -43,7 +43,7 @@ class TodoItem
         complete = text.match(completeRe)?[0] || false
         description = text.replace(completeRe, '').trim()
 
-        priorityRe = /\([ABC]\) /
+        priorityRe = /\([A-Z]\) /
         priority = text.match(priorityRe)?[0]
         if priority
             priority = priority[1]
